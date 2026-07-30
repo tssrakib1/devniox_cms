@@ -1,0 +1,13 @@
+@extends('layouts.admin')
+@section('title','Platforms')
+@section('heading','Platforms')
+@section('content')
+<div class="d-flex justify-content-end mb-3"><a class="btn btn-primary" href="{{ route('admin.platforms.create') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add platform</a></div>
+<x-card>
+<form class="row g-2 mb-4" method="get"><div class="col-lg-6"><label class="visually-hidden" for="search">Search platforms</label><input class="form-control" id="search" name="search" value="{{ request('search') }}" placeholder="Search platforms"></div><div class="col-sm-4 col-lg-3"><select class="form-select" name="status" aria-label="Status"><option value="">All statuses</option>@foreach(['active','inactive'] as $status)<option value="{{ $status }}" @selected(request('status')===$status)>{{ Str::headline($status) }}</option>@endforeach</select></div><div class="col-sm-4 col-lg-2"><button class="btn btn-outline-primary w-100" type="submit">Filter</button></div></form>
+<div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Logo</th><th>Platform</th><th>URL</th><th>Badge</th><th>Order</th><th>Status</th><th>Updated</th><th class="text-end">Actions</th></tr></thead><tbody>
+@forelse($platforms as $platform)<tr><td>@if($platform->logo)<img class="admin-product-thumb" src="{{ Storage::url($platform->logo) }}" alt="">@else<div class="admin-product-thumb"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i></div>@endif</td><td><strong>{{ $platform->name }}</strong><br><small class="text-muted">{{ $platform->slug }}</small></td><td><a href="{{ $platform->website_url }}" target="_blank" rel="noopener noreferrer">{{ Str::limit($platform->website_url, 42) }}</a></td><td>{{ $platform->badge ?: '—' }}</td><td>{{ $platform->display_order }}</td><td><span class="badge text-bg-{{ $platform->status === 'active' ? 'success' : 'secondary' }}">{{ Str::headline($platform->status) }}</span></td><td><time datetime="{{ $platform->updated_at->toAtomString() }}">{{ $platform->updated_at->diffForHumans() }}</time></td><td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ route('admin.platforms.edit',$platform) }}">Edit</a><form class="d-inline" method="post" action="{{ route('admin.platforms.destroy',$platform) }}" data-confirm="Delete this platform?">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>
+@empty<tr><td colspan="8"><x-empty-state title="No platforms found">Create the first platform to show the ecosystem section on the homepage.</x-empty-state></td></tr>@endforelse
+</tbody></table></div>{{ $platforms->links() }}
+</x-card>
+@endsection

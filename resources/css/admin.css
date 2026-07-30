@@ -1,0 +1,109 @@
+@import './app.css';
+@import 'admin-lte/dist/css/adminlte.min.css';
+
+/* Keep AdminLTE's viewport-sticky sidebar attached to the document scroller.
+   The shared public bundle uses overflow-x:hidden, which creates an unintended
+   sticky containing block on longer admin pages. */
+html.admin-layout,
+body.layout-fixed {
+    overflow-x: clip;
+}
+
+body.layout-fixed .app-wrapper {
+    min-height: 100dvh;
+}
+
+body.layout-fixed .app-sidebar {
+    align-self: start;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+}
+
+body.layout-fixed .app-sidebar .sidebar-wrapper {
+    height: calc(100dvh - 3.5rem - 1px);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+body.layout-fixed .sidebar-menu {
+    margin-bottom: 0;
+}
+.activity-json {
+    max-height: 32rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: .8125rem;
+}
+.navbar-avatar {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-avatar {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 1.5rem;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
+    border: 1px solid var(--bs-border-color);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.profile-avatar-lg {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 2rem;
+    font-size: 2.5rem;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-meta > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .75rem 0;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.profile-meta > div:first-child { padding-top: 0; }
+.profile-meta > div:last-child { padding-bottom: 0; border-bottom: 0; }
+.profile-meta dt { color: var(--bs-secondary-color); font-weight: 500; }
+.profile-meta dd { margin: 0; text-align: right; font-weight: 600; }
+
+@media (max-width: 575.98px) {
+    .profile-meta > div { display: block; }
+    .profile-meta dd { margin-top: .25rem; text-align: left; }
+}
+.order-timeline li:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: .4375rem;
+    top: 1rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--bs-border-color);
+}
+
+.order-timeline-marker {
+    position: absolute;
+    left: 0;
+    top: .35rem;
+    width: .95rem;
+    height: .95rem;
+    border: 3px solid var(--bs-primary);
+    border-radius: 50%;
+    background: var(--bs-body-bg);
+}

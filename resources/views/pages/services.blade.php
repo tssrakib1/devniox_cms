@@ -1,0 +1,1 @@
+@extends('layouts.app') @section('title','Services — DevNiox') @section('content')<x-page-hero eyebrow="Services" title="Capabilities that compound." text="Our complete service catalogue is being prepared for the next release." />@endsection

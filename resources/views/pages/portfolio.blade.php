@@ -1,0 +1,1 @@
+@extends('layouts.app') @section('title','Portfolio — DevNiox') @section('content')<x-page-hero eyebrow="Portfolio" title="Work that moves businesses." text="Selected work will appear when the portfolio module launches." />@endsection

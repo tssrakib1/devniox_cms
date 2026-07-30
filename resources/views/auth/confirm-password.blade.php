@@ -1,0 +1,1 @@
+@extends('layouts.auth') @section('title','Confirm password') @section('content')<h1 class="h4">Confirm your password</h1><p class="text-muted">This sensitive area requires password confirmation.</p><form method="post">@csrf<x-form.input name="password" label="Password" type="password" required autofocus/><x-button type="submit" class="w-100">Confirm</x-button></form>@endsection

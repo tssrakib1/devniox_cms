@@ -1,0 +1,1 @@
+@extends('layouts.app') @section('title','Blog — DevNiox') @section('content')<x-page-hero eyebrow="Insights" title="Ideas for building better." text="Publishing capabilities will arrive with the blog module." />@endsection

@@ -1,0 +1,1 @@
+@extends('layouts.app') @section('title','Products — DevNiox') @section('content')<x-page-hero eyebrow="Products" title="Products made to endure." text="Product details will be introduced in a dedicated development phase." />@endsection

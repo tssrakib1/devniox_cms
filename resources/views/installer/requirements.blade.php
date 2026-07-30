@@ -1,0 +1,6 @@
+@extends('installer.layout')
+@php($step=2)
+@section('title','Server requirements')
+@section('content')
+<section class="installer-card"><div class="installer-card-header"><span class="step-label">Step 2 of 8</span><h1 class="h3 mt-2 mb-2">Server requirements</h1><p class="text-secondary mb-0">Every required capability must pass before configuration can continue.</p></div><div class="installer-card-body">@foreach($requirements as $requirement)<div class="requirement"><span>{{ $requirement['label'] }}</span><span class="status-icon {{ $requirement['passed']?'pass':'fail' }}" aria-label="{{ $requirement['passed']?'Passed':'Failed' }}"><i class="bi bi-{{ $requirement['passed']?'check-lg':'x-lg' }}"></i></span></div>@endforeach</div><form method="post" action="{{ route('install.requirements.accept') }}">@csrf<div class="installer-card-footer"><a class="btn btn-link text-secondary text-decoration-none" href="{{ route('install.welcome') }}">Back</a><div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{{ route('install.requirements') }}">Check again</a><button class="btn btn-primary" @disabled(!$passed)>Continue <i class="bi bi-arrow-right ms-1"></i></button></div></div></form></section>
+@endsection
