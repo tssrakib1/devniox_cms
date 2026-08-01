@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->enum('group', ['company', 'branding', 'contact', 'hours', 'social', 'seo', 'mail', 'analytics'])->index();
+            $table->string('group', 40)->index();
             $table->string('key', 100);
             $table->text('value')->nullable();
             $table->enum('type', ['string', 'text', 'boolean', 'integer', 'url', 'email', 'image', 'secret'])->default('string');

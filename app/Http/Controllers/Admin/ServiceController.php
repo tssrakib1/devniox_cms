@@ -51,7 +51,7 @@ class ServiceController extends Controller
     public function edit(Service $service): View
     {
         $this->authorize('update', $service);
-        $service->load(['benefits', 'processSteps', 'features', 'technologies', 'deliverables', 'galleryImages', 'faqs', 'seo']);
+        $service->load('seo');
 
         return view('admin.services.form', $this->formData($service));
     }
@@ -119,3 +119,4 @@ class ServiceController extends Controller
         return ['service' => $service, 'categories' => ServiceCategory::active()->orderBy('sort_order')->orderBy('name')->get(), 'statuses' => ServiceStatus::cases()];
     }
 }
+

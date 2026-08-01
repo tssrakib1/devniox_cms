@@ -49,9 +49,8 @@ class ManagedImageService
 
     public function delete(?string $path): void
     {
-        if ($path && (str_starts_with($path, 'products/') || str_starts_with($path, 'services/') || str_starts_with($path, 'portfolio/') || str_starts_with($path, 'blog/') || str_starts_with($path, 'branding/') || str_starts_with($path, 'platforms/') || str_starts_with($path, 'profiles/'))) {
+        if ($path && (str_starts_with($path, 'products/') || str_starts_with($path, 'services/') || str_starts_with($path, 'portfolio/') || str_starts_with($path, 'blog/') || str_starts_with($path, 'branding/') || str_starts_with($path, 'seo/') || str_starts_with($path, 'cms/') || str_starts_with($path, 'platforms/') || str_starts_with($path, 'profiles/'))) {
             Storage::disk('public')->delete($path);
         }
     }
 }
-

@@ -47,11 +47,11 @@
     </div>
 
     <div class="col-12 col-xl-4">
-        <div class="card shadow-sm mb-4"><div class="card-header"><h2 class="h5 mb-0">Avatar</h2></div><div class="card-body text-center"><div class="profile-avatar profile-avatar-lg mx-auto mb-3">@if($user->avatar_path)<img src="{{ asset('storage/'.$user->avatar_path) }}" alt="{{ $user->name }} profile avatar" width="160" height="160">@else<span aria-hidden="true">{{ str($user->name)->explode(' ')->take(2)->map(fn ($part) => str($part)->substr(0, 1))->implode('') }}</span>@endif</div><h3 class="h5 mb-1">{{ $user->name }}</h3><p class="text-body-secondary mb-2">{{ $user->email }}</p><span class="badge text-bg-primary">{{ $user->role->name }}</span> <span class="badge {{ $user->is_active ? 'text-bg-success' : 'text-bg-danger' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span></div></div>
+        <div class="card shadow-sm mb-4"><div class="card-header"><h2 class="h5 mb-0">Avatar</h2></div><div class="card-body text-center"><div class="profile-avatar profile-avatar-lg mx-auto mb-3">@if($user->avatar_path)<img src="{{ asset('storage/'.$user->avatar_path) }}" alt="{{ $user->name }} profile avatar" width="160" height="160">@else<span aria-hidden="true">{{ str($user->name)->explode(' ')->take(2)->map(fn ($part) => str($part)->substr(0, 1))->implode('') }}</span>@endif</div><h3 class="h5 mb-1">{{ $user->name }}</h3><p class="text-body-secondary mb-2">{{ $user->email }}</p><span class="badge text-bg-primary">{{ $user->managedRole?->name ?? Str::headline($user->role->value) }}</span> <span class="badge {{ $user->is_active ? 'text-bg-success' : 'text-bg-danger' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span></div></div>
 
         <div class="card shadow-sm"><div class="card-header"><h2 class="h5 mb-0">Account Information</h2></div><div class="card-body"><dl class="profile-meta mb-0">
             <div><dt>User ID</dt><dd>#{{ $user->id }}</dd></div>
-            <div><dt>Role</dt><dd>{{ $user->role->name }}</dd></div>
+            <div><dt>Role</dt><dd>{{ $user->managedRole?->name ?? Str::headline($user->role->value) }}</dd></div>
             <div><dt>Account Status</dt><dd>{{ $user->is_active ? 'Active' : 'Inactive' }}</dd></div>
             <div><dt>Member Since</dt><dd><time datetime="{{ $user->created_at->toIso8601String() }}">{{ $user->created_at->format('M j, Y') }}</time></dd></div>
             <div><dt>Last Login</dt><dd>{{ $lastLogin ? \Illuminate\Support\Carbon::parse($lastLogin)->diffForHumans() : 'Not recorded' }}</dd></div>

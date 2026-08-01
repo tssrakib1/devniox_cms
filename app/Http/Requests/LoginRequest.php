@@ -21,7 +21,7 @@ class LoginRequest extends FormRequest
 
     public function authenticate(): void
     {
-        if (! Auth::attempt($this->safe()->only('email', 'password'), $this->boolean('remember')) || ! Auth::user()->is_active) {
+        if (! Auth::attempt($this->safe()->only('email', 'password'), $this->boolean('remember')) || ! Auth::user()?->is_active) {
             Auth::logout();
             ActivityLogService::log('authentication', 'failed_login', 'Failed login attempt for '.$this->string('email')->value().'.', null, null, ['email' => $this->string('email')->value()]);
             throw ValidationException::withMessages(['email' => __('auth.failed')]);

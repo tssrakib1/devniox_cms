@@ -35,6 +35,7 @@ use App\Http\Controllers\CmsPublicPageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\LeadSubmissionController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\PortfolioCatalogController;
 use App\Http\Controllers\ProductCatalogController;
@@ -81,6 +82,8 @@ Route::get('/request-demo', [LeadSubmissionController::class, 'demo'])->name('de
 Route::post('/request-demo', [LeadSubmissionController::class, 'storeDemo'])->middleware('throttle:5,1')->name('demo-request.store');
 Route::get('/request-quote', [LeadSubmissionController::class, 'quote'])->name('quote-request');
 Route::post('/request-quote', [LeadSubmissionController::class, 'storeQuote'])->middleware('throttle:5,1')->name('quote-request.store');
+Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy-policy');
+Route::get('/terms-and-conditions', [PageController::class, 'terms'])->name('terms-conditions');
 Route::get('/sitemap.xml', function () {
     $entries = Cache::remember('seo.sitemap.v1', now()->addHour(), fn () => [
         'sitemapProducts' => Product::published()->whereHas('category', fn ($query) => $query->active())->select(['slug', 'updated_at'])->get(),
@@ -110,8 +113,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::put('/profile/password', [ProfileController::class, 'password'])->middleware('throttle:6,1')->name('profile.password');
-        Route::get('/website/{page:key}/edit', [CmsPageController::class, 'edit'])->whereIn('page', ['home', 'about', 'contact'])->name('cms.pages.edit');
-        Route::put('/website/{page:key}', [CmsPageController::class, 'update'])->whereIn('page', ['home', 'about', 'contact'])->name('cms.pages.update');
+        Route::get('/website/{page:key}/edit', [CmsPageController::class, 'edit'])->whereIn('page', ['home', 'about', 'contact', 'request-demo', 'request-quote', 'privacy-policy', 'terms-conditions'])->name('cms.pages.edit');
+        Route::put('/website/{page:key}', [CmsPageController::class, 'update'])->whereIn('page', ['home', 'about', 'contact', 'request-demo', 'request-quote', 'privacy-policy', 'terms-conditions'])->name('cms.pages.update');
         Route::get('/website/navigation', [CmsNavigationController::class, 'edit'])->name('cms.navigation.edit');
         Route::put('/website/navigation', [CmsNavigationController::class, 'update'])->name('cms.navigation.update');
         Route::get('/website/footer', [CmsFooterController::class, 'edit'])->name('cms.footer.edit');
@@ -194,10 +197,16 @@ Route::middleware('auth')->group(function () {
             Route::get('/settings', [SettingsController::class, 'edit'])->middleware('permission:website-settings,view')->name('settings.edit');
             Route::get('/settings/system', [SystemController::class, 'index'])->middleware('permission:website-settings,view')->name('settings.system');
             Route::post('/settings/cache', [SystemController::class, 'clear'])->middleware(['permission:website-settings,edit', 'throttle:10,1'])->name('settings.cache.clear');
+            Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->middleware(['permission:website-settings,edit', 'throttle:3,1'])->name('settings.test-email');
             Route::get('/settings/{section}', [SettingsController::class, 'edit'])->middleware('permission:website-settings,view')->whereIn('section', ['general', 'branding', 'contact', 'social', 'seo', 'analytics', 'email', 'integrations', 'maintenance'])->name('settings.section');
             Route::put('/settings', [SettingsController::class, 'update'])->middleware(['permission:website-settings,edit', 'password.confirm', 'throttle:10,1'])->name('settings.update');
         });
     });
 });
+
+
+
+
+
 
 

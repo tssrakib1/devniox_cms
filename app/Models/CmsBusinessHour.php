@@ -8,7 +8,7 @@ class CmsBusinessHour extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['day_of_week', 'is_closed', 'opens_at', 'closes_at'];
+    protected $fillable = ['day_of_week', 'is_closed', 'opens_at', 'closes_at', 'holiday_text'];
 
     protected function casts(): array
     {

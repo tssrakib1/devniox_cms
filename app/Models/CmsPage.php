@@ -28,6 +28,11 @@ class CmsPage extends Model
         return $this->hasOne(CmsContactContent::class);
     }
 
+    public function simpleContent()
+    {
+        return $this->hasOne(CmsSimplePageContent::class);
+    }
+
     public function whyItems()
     {
         return $this->hasMany(HomeWhyItem::class)->orderBy('sort_order');
@@ -36,6 +41,31 @@ class CmsPage extends Model
     public function statistics()
     {
         return $this->hasMany(HomeStatistic::class)->orderBy('sort_order');
+    }
+
+    public function trustItems()
+    {
+        return $this->hasMany(HomeTrustItem::class)->orderBy('sort_order');
+    }
+
+    public function industryItems()
+    {
+        return $this->hasMany(HomeIndustryItem::class)->orderBy('sort_order');
+    }
+
+    public function processItems()
+    {
+        return $this->hasMany(HomeProcessItem::class)->orderBy('sort_order');
+    }
+
+    public function technologyItems()
+    {
+        return $this->hasMany(HomeTechnologyItem::class)->orderBy('sort_order');
+    }
+
+    public function faqItems()
+    {
+        return $this->hasMany(HomeFaqItem::class)->orderBy('sort_order');
     }
 
     public function coreValues()

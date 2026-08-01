@@ -23,15 +23,53 @@ class DatabaseSeeder extends Seeder
 
     public function seedFoundation(): void
     {
-        $settings = [['company', 'name', 'DevNiox', 'string', true], ['company', 'tagline', 'Digital products engineered for growth.', 'string', true], ['contact', 'email', 'hello@devniox.test', 'email', true], ['contact', 'phone', '', 'string', true], ['contact', 'address', '', 'text', true], ['hours', 'weekdays', 'Monday–Friday, 9:00–18:00', 'string', true], ['social', 'linkedin', '', 'url', true], ['social', 'github', '', 'url', true], ['social', 'x', '', 'url', true], ['seo', 'meta_title', 'DevNiox — Business Software & Digital Products', 'string', true], ['seo', 'meta_description', 'DevNiox builds reliable business software and digital products.', 'text', true], ['seo', 'og_title', 'DevNiox', 'string', true], ['seo', 'og_description', 'Digital products engineered for growth.', 'text', true], ['branding', 'logo', '', 'image', true], ['branding', 'dark_logo', '', 'image', true], ['branding', 'favicon', '', 'image', true], ['branding', 'default_share_image', '', 'image', true], ['mail', 'host', '', 'string', false], ['mail', 'port', '587', 'integer', false], ['mail', 'username', '', 'string', false], ['mail', 'password', '', 'secret', false], ['mail', 'encryption', 'tls', 'string', false], ['analytics', 'google_tag_id', '', 'string', false]];
+        $settings = [
+            ['general', 'site_name', 'DevNiox', 'string', true],
+            ['general', 'tagline', 'Digital products engineered for growth.', 'string', true],
+            ['general', 'default_language', 'en', 'string', true],
+            ['general', 'timezone', 'Asia/Dhaka', 'string', true],
+            ['branding', 'logo', '', 'image', true],
+            ['branding', 'dark_logo', '', 'image', true],
+            ['branding', 'favicon', '', 'image', true],
+            ['branding', 'admin_logo', '', 'image', true],
+            ['branding', 'login_logo', '', 'image', true],
+            ['branding', 'theme_color', '#0d6efd', 'string', true],
+            ['contact', 'company_name', 'DevNiox', 'string', true],
+            ['contact', 'address', '', 'text', true],
+            ['contact', 'phone', '', 'string', true],
+            ['contact', 'mobile', '', 'string', true],
+            ['contact', 'email', 'hello@devniox.test', 'email', true],
+            ['contact', 'support_email', '', 'email', true],
+            ['contact', 'sales_email', '', 'email', true],
+            ['contact', 'google_maps_embed', '', 'text', true],
+            ['seo', 'meta_title', 'DevNiox - Business Software & Digital Products', 'string', true],
+            ['seo', 'meta_description', 'DevNiox builds reliable business software and digital products.', 'text', true],
+            ['seo', 'meta_keywords', '', 'string', true],
+            ['seo', 'open_graph_image', '', 'image', true],
+            ['seo', 'canonical_base_url', '', 'url', true],
+            ['seo', 'robots_meta', 'index,follow', 'string', true],
+            ['seo', 'organization', 'DevNiox', 'string', true],
+            ['analytics', 'ga4_measurement_id', '', 'string', false],
+            ['analytics', 'gtm_id', '', 'string', false],
+            ['analytics', 'clarity_id', '', 'string', false],
+            ['analytics', 'facebook_pixel_id', '', 'string', false],
+            ['email', 'smtp_host', '', 'string', false],
+            ['email', 'smtp_port', '587', 'integer', false],
+            ['email', 'smtp_username', '', 'string', false],
+            ['email', 'smtp_password', '', 'secret', false],
+            ['email', 'smtp_encryption', 'tls', 'string', false],
+            ['email', 'from_name', 'DevNiox', 'string', false],
+            ['email', 'from_email', 'hello@devniox.test', 'email', false],
+            ['integrations', 'webhook_url', '', 'url', false],
+            ['maintenance', 'enabled', '0', 'boolean', true],
+            ['maintenance', 'message', 'We are completing scheduled maintenance. Please check back shortly.', 'text', true],
+            ['maintenance', 'estimated_return', '', 'string', true],
+            ['maintenance', 'allow_admin', '1', 'boolean', false],
+        ];
         foreach ($settings as [$group, $key, $value, $type, $is_public]) {
             Setting::updateOrCreate(compact('group', 'key'), compact('value', 'type', 'is_public'));
         }
-        $globalSettings = [['general', 'short_description', 'Digital products engineered for growth.', 'text', true], ['general', 'website_name', 'DevNiox', 'string', true], ['general', 'default_language', 'en', 'string', true], ['general', 'timezone', 'Asia/Dhaka', 'string', true], ['general', 'date_format', 'M j, Y', 'string', true], ['general', 'time_format', 'g:i A', 'string', true], ['general', 'currency', 'USD', 'string', true], ['general', 'website_status', 'online', 'string', true], ['branding', 'apple_touch_icon', '', 'image', true], ['branding', 'theme_color', '#0d6efd', 'string', true], ['contact', 'support_email', '', 'email', true], ['contact', 'sales_email', '', 'email', true], ['contact', 'whatsapp', '', 'string', true], ['contact', 'maps_url', '', 'url', true], ['seo', 'meta_keywords', '', 'string', true], ['seo', 'canonical_strategy', 'current_url', 'string', true], ['seo', 'robots_default', 'index,follow', 'string', true], ['seo', 'organization_schema', 'DevNiox', 'string', true], ['analytics', 'ga_measurement_id', '', 'string', true], ['analytics', 'gtm_id', '', 'string', true], ['analytics', 'clarity_id', '', 'string', true], ['analytics', 'meta_pixel_id', '', 'string', true], ['analytics', 'head_scripts', '', 'text', true], ['analytics', 'footer_scripts', '', 'text', true], ['email', 'sender_name', 'DevNiox', 'string', false], ['email', 'sender_address', 'hello@devniox.test', 'email', false], ['email', 'reply_to', 'hello@devniox.test', 'email', false], ['email', 'lead_notification_email', 'hello@devniox.test', 'email', false], ['email', 'notifications_enabled', '1', 'boolean', false], ['integrations', 'whatsapp_enabled', '0', 'boolean', false], ['integrations', 'telegram_enabled', '0', 'boolean', false], ['integrations', 'live_chat_enabled', '0', 'boolean', false], ['integrations', 'external_api_enabled', '0', 'boolean', false], ['integrations', 'external_api_url', '', 'url', false], ['maintenance', 'enabled', '0', 'boolean', true], ['maintenance', 'message', 'We are completing scheduled maintenance. Please check back shortly.', 'text', true], ['maintenance', 'estimated_return', '', 'string', true], ['maintenance', 'allow_admin', '1', 'boolean', false]];
-        foreach ($globalSettings as [$group,$key,$value,$type,$is_public]) {
-            Setting::updateOrCreate(compact('group', 'key'), compact('value', 'type', 'is_public'));
-        }
-        foreach (['facebook', 'linkedin', 'github', 'youtube', 'instagram', 'x', 'tiktok', 'telegram'] as $order => $platform) {
+        foreach (['facebook', 'linkedin', 'youtube', 'instagram', 'x', 'github', 'whatsapp'] as $order => $platform) {
             SocialLink::firstOrCreate(['platform' => $platform], ['display_order' => $order, 'is_visible' => false]);
         }
         $home = CmsPage::firstOrCreate(['key' => 'home'], ['status' => 'published', 'meta_title' => 'DevNiox — Business Software & Digital Products', 'meta_description' => 'DevNiox builds reliable business software and digital products.', 'is_indexable' => true]);
@@ -51,4 +89,3 @@ class DatabaseSeeder extends Seeder
         // only after the owner selects "Install Demo Data".
     }
 }
-

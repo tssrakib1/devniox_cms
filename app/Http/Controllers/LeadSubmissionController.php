@@ -22,35 +22,36 @@ class LeadSubmissionController extends Controller
         return view('leads.contact', ['cmsPage' => $cms->page('contact')]);
     }
 
-    public function storeContact(StoreContactMessageRequest $r, LeadManager $m): RedirectResponse
+    public function storeContact(StoreContactMessageRequest $r, LeadManager $m, CmsService $cms): RedirectResponse
     {
         $m->createContact($r->validated(), $r);
+        $message = $cms->page('contact')->contact->success_message ?: 'Thank you. Your message has been received.';
 
-        return back()->with('success', 'Thank you. Your message has been received.');
+        return back()->with('success', $message);
     }
 
-    public function demo(Request $r): View
+    public function demo(Request $r, CmsService $cms): View
     {
-        return view('leads.demo', $this->options($r));
+        return view('leads.demo', $this->options($r) + ['cmsPage' => $cms->page('request-demo')]);
     }
 
-    public function storeDemo(StoreDemoRequest $r, LeadManager $m): RedirectResponse
+    public function storeDemo(StoreDemoRequest $r, LeadManager $m, CmsService $cms): RedirectResponse
     {
         $m->createDemo($r->validated(), $r);
 
-        return back()->with('success', 'Your demo request has been received.');
+        return back()->with('success', $cms->page('request-demo')->simpleContent->success_message ?: 'Your demo request has been received.');
     }
 
-    public function quote(Request $r): View
+    public function quote(Request $r, CmsService $cms): View
     {
-        return view('leads.quote', $this->options($r));
+        return view('leads.quote', $this->options($r) + ['cmsPage' => $cms->page('request-quote')]);
     }
 
-    public function storeQuote(StoreQuoteRequest $r, LeadManager $m): RedirectResponse
+    public function storeQuote(StoreQuoteRequest $r, LeadManager $m, CmsService $cms): RedirectResponse
     {
         $m->createQuote($r->validated(), $r);
 
-        return back()->with('success', 'Your quote request has been received.');
+        return back()->with('success', $cms->page('request-quote')->simpleContent->success_message ?: 'Your quote request has been received.');
     }
 
     private function options(Request $r): array

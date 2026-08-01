@@ -10,12 +10,13 @@ use App\Services\CmsService;
 
 class CmsPageController extends Controller
 {
-    public function edit(CmsPage $page)
+    public function edit(CmsPage $page, CmsService $cms)
     {
         $this->authorize('update', $page);
-        $page->load($page->key === 'home' ? ['home', 'whyItems', 'statistics'] : ($page->key === 'about' ? ['about', 'coreValues', 'workItems'] : ['contact', 'businessHours']));
+        $page->load($cms->relationsFor($page->key));
+        $view = view()->exists("admin.cms.{$page->key}") ? "admin.cms.{$page->key}" : 'admin.cms.simple-page';
 
-        return view("admin.cms.{$page->key}", compact('page'));
+        return view($view, compact('page'));
     }
 
     public function update(UpdateCmsPageRequest $r, CmsPage $page, CmsService $s)
