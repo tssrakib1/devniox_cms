@@ -47,21 +47,32 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapFive();
         $settings = app(SettingsService::class)->all();
         $timezone = $settings['general.timezone'] ?? config('app.timezone');
-        config(['app.timezone' => $timezone]);
+        config([
+            'app.name' => $settings['general.site_name'] ?? config('app.name'),
+            'app.locale' => $settings['general.default_language'] ?? config('app.locale'),
+            'app.timezone' => $timezone,
+        ]);
         date_default_timezone_set($timezone);
-        if (filled($settings['mail.host'] ?? null)) {
+        if (filled($settings['email.smtp_host'] ?? null)) {
             config([
-                'mail.mailers.smtp.host' => $settings['mail.host'],
-                'mail.mailers.smtp.port' => $settings['mail.port'] ?? 587,
-                'mail.mailers.smtp.username' => $settings['mail.username'] ?? null,
-                'mail.mailers.smtp.password' => $settings['mail.password'] ?? null,
-                'mail.mailers.smtp.scheme' => ($settings['mail.encryption'] ?? null) === 'ssl' ? 'smtps' : null,
+                'mail.default' => 'smtp',
+                'mail.mailers.smtp.host' => $settings['email.smtp_host'],
+                'mail.mailers.smtp.port' => (int) ($settings['email.smtp_port'] ?? 587),
+                'mail.mailers.smtp.username' => $settings['email.smtp_username'] ?? null,
+                'mail.mailers.smtp.password' => $settings['email.smtp_password'] ?? null,
+                'mail.mailers.smtp.encryption' => $settings['email.smtp_encryption'] ?: null,
+                'mail.from.address' => $settings['email.from_email'] ?? config('mail.from.address'),
+                'mail.from.name' => $settings['email.from_name'] ?? config('mail.from.name'),
+                'mail.lead_notifications_to' => ($settings['contact.support_email'] ?? null) ?: ($settings['contact.email'] ?? config('mail.from.address')),
             ]);
         }
         View::composer(['layouts.app', 'pages.home', 'pages.about', 'pages.contact', 'leads.contact'], function ($view) {
             $view->with('siteSettings', app(SettingsService::class)->public());
             $view->with('socialLinks', app(SettingsService::class)->socialLinks());
             $view->with('headerNavigation', app(CmsService::class)->navigation('header'))->with('footerNavigation', app(CmsService::class)->navigation('footer'))->with('cmsFooter', app(CmsService::class)->footer());
+        });
+        View::composer(['layouts.admin', 'layouts.auth'], function ($view) {
+            $view->with('siteSettings', app(SettingsService::class)->public());
         });
         View::composer('admin.*', function ($view) {
             if (! auth()->check()) {
@@ -110,3 +121,6 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 }
+
+
+

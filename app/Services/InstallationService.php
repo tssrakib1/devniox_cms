@@ -116,7 +116,7 @@ class InstallationService
                 $role = Role::where('slug', 'administrator')->firstOrFail();
                 $role->permissions()->sync(Permission::pluck('id'));
                 Setting::where(['group' => 'company', 'key' => 'name'])->update(['value' => $state['application']['name']]);
-                Setting::where(['group' => 'general', 'key' => 'website_name'])->update(['value' => $state['application']['name']]);
+                Setting::where(['group' => 'general', 'key' => 'site_name'])->update(['value' => $state['application']['name']]);
                 Setting::where(['group' => 'general', 'key' => 'timezone'])->update(['value' => $state['application']['timezone']]);
                 Setting::where(['group' => 'general', 'key' => 'currency'])->update(['value' => $state['application']['currency']]);
                 ActivityLogService::log('system', 'installed', 'Application installation completed.', $administrator, null, ['version' => config('app.version')], $administrator->id);
@@ -365,3 +365,4 @@ class InstallationService
         }
     }
 }
+

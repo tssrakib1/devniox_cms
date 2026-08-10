@@ -8,15 +8,19 @@ use Illuminate\Http\Request;
 
 class EnforceWebsiteStatus
 {
-    public function handle(Request $r, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        $s = app(SettingsService::class);
-        $enabled = $s->get('maintenance.enabled', false) || $s->get('general.website_status') === 'maintenance';
-        $admin = $r->user()?->isAdmin() && $s->get('maintenance.allow_admin', true);
-        if ($enabled && ! $admin && ! $r->routeIs('login', 'logout')) {
-            return response()->view('errors.503', ['message' => $s->get('maintenance.message')], 503);
+        $settings = app(SettingsService::class);
+        $enabled = $settings->get('maintenance.enabled', false);
+        $adminAllowed = $request->user()?->isAdmin() && $settings->get('maintenance.allow_admin', true);
+
+        if ($enabled && ! $adminAllowed && ! $request->routeIs('login', 'logout')) {
+            return response()->view('errors.503', [
+                'message' => $settings->get('maintenance.message'),
+                'estimatedReturn' => $settings->get('maintenance.estimated_return'),
+            ], 503);
         }
 
-        return $next($r);
+        return $next($request);
     }
 }

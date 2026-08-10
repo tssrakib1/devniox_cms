@@ -28,15 +28,44 @@ class SystemController extends Controller
             });
         });
 
-        return view('admin.settings.system', ['system' => ['Application Version' => config('app.version', '1.0.0'), 'Laravel Version' => app()->version(), 'PHP Version' => PHP_VERSION, 'Environment' => app()->environment(), 'Database Driver' => config('database.default'), 'Storage Usage' => number_format($storageBytes / 1048576, 2).' MB', 'Cache Status' => $cacheOperational ? 'Operational ('.config('cache.default').')' : 'Unavailable', 'Configuration Cache' => app()->configurationIsCached() ? 'Cached' : 'Not cached', 'Route Cache' => app()->routesAreCached() ? 'Cached' : 'Not cached', 'Queue' => config('queue.default'), 'Debug' => config('app.debug') ? 'Enabled' : 'Disabled']]);
+        return view('admin.settings.system', ['system' => [
+            'Application Version' => config('app.version', '1.0.0'),
+            'Laravel Version' => app()->version(),
+            'PHP Version' => PHP_VERSION,
+            'Environment' => app()->environment(),
+            'Database Driver' => config('database.default'),
+            'Storage Usage' => number_format($storageBytes / 1048576, 2).' MB',
+            'Cache Status' => $cacheOperational ? 'Operational ('.config('cache.default').')' : 'Unavailable',
+            'Configuration Cache' => app()->configurationIsCached() ? 'Cached' : 'Not cached',
+            'Route Cache' => app()->routesAreCached() ? 'Cached' : 'Not cached',
+            'Queue' => config('queue.default'),
+            'Debug' => config('app.debug') ? 'Enabled' : 'Disabled',
+        ]]);
     }
 
-    public function clear(Request $r)
+    public function clear(Request $request)
     {
-        abort_unless($r->user()->isAdmin(), 403);
-        $action = $r->validate(['action' => ['required', 'in:cache,config,route,view']])['action'];
-        Artisan::call($action.':clear');
+        abort_unless($request->user()->isAdmin(), 403);
+        $action = $request->validate(['action' => ['required', 'in:cache,config,route,view,optimize']])['action'];
 
-        return back()->with('success', ucfirst($action).' cache cleared.');
+        try {
+            match ($action) {
+                'cache' => Artisan::call('cache:clear'),
+                'config' => Artisan::call('config:clear'),
+                'route' => Artisan::call('route:clear'),
+                'view' => Artisan::call('view:clear'),
+                'optimize' => Artisan::call('optimize'),
+            };
+        } catch (\Throwable $exception) {
+            return back()->withErrors(['action' => 'System action failed: '.$exception->getMessage()]);
+        }
+
+        return back()->with('success', match ($action) {
+            'cache' => 'Application cache cleared.',
+            'config' => 'Configuration cache cleared.',
+            'route' => 'Route cache cleared.',
+            'view' => 'Compiled view cache cleared.',
+            'optimize' => 'Application optimized successfully.',
+        });
     }
 }

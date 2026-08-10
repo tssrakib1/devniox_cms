@@ -30,10 +30,11 @@ class SettingsService
         }
 
         $cached = $this->cached();
-        if (! isset($cached['all'],$cached['secrets'])) {
+        if (! isset($cached['all'], $cached['secrets'])) {
             $this->forget();
             $cached = $this->cached();
         }
+
         $settings = $cached['all'];
         foreach (array_keys($cached['secrets']) as $key) {
             $settings[$key] = $this->decrypt($settings[$key] ?? null);
@@ -73,23 +74,31 @@ class SettingsService
     {
         DB::transaction(function () use ($values, $files) {
             foreach ($values as $key => $value) {
-                [$group,$name] = explode('.', $key, 2);
+                [$group, $name] = explode('.', $key, 2);
                 $setting = Setting::where(['group' => $group, 'key' => $name])->first();
                 if (! $setting || ($setting->type === 'secret' && blank($value))) {
                     continue;
-                }$setting->update(['value' => $setting->type === 'secret' ? Crypt::encryptString($value) : $value]);
-            }foreach ($files as $key => $file) {
+                }
+                $setting->update(['value' => $setting->type === 'secret' ? Crypt::encryptString($value) : $value]);
+            }
+
+            foreach ($files as $key => $file) {
                 if (! $file) {
                     continue;
-                }$setting = Setting::where(['group' => 'branding', 'key' => $key])->first();
+                }
+                [$group, $name] = str_contains($key, '.') ? explode('.', $key, 2) : ['branding', $key];
+                $setting = Setting::where(['group' => $group, 'key' => $name])->where('type', 'image')->first();
                 if (! $setting) {
                     continue;
-                }$old = $setting->value;
-                $path = app(ManagedImageService::class)->store($file, 'branding', $key === 'favicon' ? 512 : 1600, $key === 'favicon' ? 512 : 1600);
+                }
+                $old = $setting->value;
+                $size = in_array($name, ['favicon'], true) ? 512 : 1600;
+                $path = app(ManagedImageService::class)->store($file, $group.'/'.$name, $size, $size);
                 $setting->update(['value' => $path]);
                 DB::afterCommit(fn () => app(ManagedImageService::class)->delete($old));
             }
         });
+
         $this->forget();
     }
 
@@ -106,7 +115,10 @@ class SettingsService
     private function cast(?string $value, string $type): mixed
     {
         return match ($type) {
-            'boolean' => filter_var($value, FILTER_VALIDATE_BOOL),'integer' => (int) $value,'secret' => $this->decrypt($value),default => $value
+            'boolean' => filter_var($value, FILTER_VALIDATE_BOOL),
+            'integer' => (int) $value,
+            'secret' => $this->decrypt($value),
+            default => $value,
         };
     }
 
@@ -121,13 +133,13 @@ class SettingsService
                 $all = [];
                 $public = [];
                 $secrets = [];
-                Setting::query()->select(['group', 'key', 'value', 'type', 'is_public'])->each(function (Setting $s) use (&$all, &$public, &$secrets) {
-                    $key = $s->group->value.'.'.$s->key;
-                    $value = $s->type === 'secret' ? $s->value : $this->cast($s->value, $s->type);
+                Setting::query()->select(['group', 'key', 'value', 'type', 'is_public'])->each(function (Setting $setting) use (&$all, &$public, &$secrets) {
+                    $key = $setting->group->value.'.'.$setting->key;
+                    $value = $setting->type === 'secret' ? $setting->value : $this->cast($setting->value, $setting->type);
                     $all[$key] = $value;
-                    if ($s->type === 'secret') {
+                    if ($setting->type === 'secret') {
                         $secrets[$key] = true;
-                    } elseif ($s->is_public) {
+                    } elseif ($setting->is_public) {
                         $public[$key] = $value;
                     }
                 });
@@ -143,10 +155,14 @@ class SettingsService
     {
         if (blank($value)) {
             return $value;
-        }try {
+        }
+
+        try {
             return Crypt::decryptString($value);
         } catch (DecryptException) {
             return $value;
         }
     }
 }
+
+

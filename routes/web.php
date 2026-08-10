@@ -194,10 +194,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/settings', [SettingsController::class, 'edit'])->middleware('permission:website-settings,view')->name('settings.edit');
             Route::get('/settings/system', [SystemController::class, 'index'])->middleware('permission:website-settings,view')->name('settings.system');
             Route::post('/settings/cache', [SystemController::class, 'clear'])->middleware(['permission:website-settings,edit', 'throttle:10,1'])->name('settings.cache.clear');
+            Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->middleware(['permission:website-settings,edit', 'throttle:3,1'])->name('settings.test-email');
             Route::get('/settings/{section}', [SettingsController::class, 'edit'])->middleware('permission:website-settings,view')->whereIn('section', ['general', 'branding', 'contact', 'social', 'seo', 'analytics', 'email', 'integrations', 'maintenance'])->name('settings.section');
             Route::put('/settings', [SettingsController::class, 'update'])->middleware(['permission:website-settings,edit', 'password.confirm', 'throttle:10,1'])->name('settings.update');
         });
     });
 });
+
 
 

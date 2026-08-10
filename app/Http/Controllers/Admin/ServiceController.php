@@ -51,7 +51,7 @@ class ServiceController extends Controller
     public function edit(Service $service): View
     {
         $this->authorize('update', $service);
-        $service->load(['benefits', 'processSteps', 'features', 'technologies', 'deliverables', 'galleryImages', 'faqs', 'seo']);
+        $service->load('seo');
 
         return view('admin.services.form', $this->formData($service));
     }
@@ -66,7 +66,8 @@ class ServiceController extends Controller
         }$data = $request->validated();
         if (! $request->user()->isAdmin()) {
             $data['is_featured'] = $service->is_featured;
-        }$old = $service->only(['name', 'slug', 'is_featured']) + ['status' => $service->status->value];
+        }$currentStatus = $service->status ?? ServiceStatus::tryFrom((string) $service->getRawOriginal('status')) ?? ServiceStatus::from($request->validated('status'));
+        $old = $service->only(['name', 'slug', 'is_featured']) + ['status' => $currentStatus->value];
         $manager->update($service, $data, $request->user()->id);
         $fresh = $service->fresh();
         ActivityLogService::log('services', 'updated', "Service {$fresh->name} updated.", $fresh, $old, $fresh->only(array_keys($old)));
@@ -119,3 +120,4 @@ class ServiceController extends Controller
         return ['service' => $service, 'categories' => ServiceCategory::active()->orderBy('sort_order')->orderBy('name')->get(), 'statuses' => ServiceStatus::cases()];
     }
 }
+

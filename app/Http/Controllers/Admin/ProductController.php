@@ -84,7 +84,8 @@ class ProductController extends Controller
         if (! $request->user()->isAdmin()) {
             $data['is_featured'] = $product->is_featured;
         }
-        $old = $product->only(['name', 'slug', 'is_featured']) + ['status' => $product->status->value];
+        $currentStatus = $product->status ?? ProductStatus::tryFrom((string) $product->getRawOriginal('status')) ?? ProductStatus::from($request->validated('status'));
+        $old = $product->only(['name', 'slug', 'is_featured']) + ['status' => $currentStatus->value];
         $manager->update($product, $data, $request->user()->id);
         $fresh = $product->fresh();
         ActivityLogService::log('products', 'updated', "Product {$fresh->name} updated.", $fresh, $old, $fresh->only(array_keys($old)));

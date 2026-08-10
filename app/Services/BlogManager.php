@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\BlogStatus;
 use App\Models\BlogPost;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class BlogManager
@@ -36,11 +37,19 @@ class BlogManager
                 DB::afterCommit(fn () => $this->images->delete($old));
             }$d['reading_time'] = max(1, (int) ceil(str_word_count(strip_tags($d['body'])) / 200));
             $d['updated_by'] = $u;
-            if ($d['status'] === BlogStatus::Published->value) {
-                $d['published_at'] = $d['published_at'] ?? now();
-            } elseif ($d['status'] === BlogStatus::Draft->value) {
+            $status = $d['status'] instanceof BlogStatus
+                ? $d['status']
+                : BlogStatus::from($d['status']);
+            $d['status'] = $status;
+            $publishedAt = filled($d['published_at'] ?? null) ? Carbon::parse($d['published_at']) : null;
+            if ($status === BlogStatus::Published) {
+                $d['published_at'] = (! $publishedAt || $publishedAt->isFuture()) ? now() : $publishedAt;
+            } elseif ($status === BlogStatus::Scheduled) {
+                $d['published_at'] = $publishedAt;
+            } else {
                 $d['published_at'] = null;
-            }$p->fill(Arr::except($d, ['featured_image', 'social_image', 'tag_ids', 'product_ids', 'service_ids', 'faqs', 'seo', 'downloads', 'download_titles']))->save();
+            }
+            $p->fill(Arr::except($d, ['featured_image', 'social_image', 'tag_ids', 'product_ids', 'service_ids', 'faqs', 'seo', 'downloads', 'download_titles']))->save();
             $p->tags()->sync($d['tag_ids'] ?? []);
             $p->products()->sync($d['product_ids'] ?? []);
             $p->services()->sync($d['service_ids'] ?? []);
