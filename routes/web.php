@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/website/navigation', [CmsNavigationController::class, 'update'])->name('cms.navigation.update');
         Route::get('/website/footer', [CmsFooterController::class, 'edit'])->name('cms.footer.edit');
         Route::put('/website/footer', [CmsFooterController::class, 'update'])->name('cms.footer.update');
+        Route::put('/platforms-parent', [PlatformController::class, 'updateParent'])->middleware('permission:website-settings')->name('platforms.parent.update');
         Route::resource('platforms', PlatformController::class)->except('show')->middleware('permission:website-settings');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');

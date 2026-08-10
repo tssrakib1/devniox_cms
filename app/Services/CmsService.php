@@ -39,7 +39,22 @@ class CmsService
 
     public function footer(): ?CmsFooterContent
     {
-        return Cache::remember('cms.footer', 3600, fn () => CmsFooterContent::firstOrCreate([], ['copyright' => '© '.date('Y').' DevNiox. All rights reserved.', 'short_description' => 'Digital products engineered for growth.', 'quick_links_heading' => 'Quick Links', 'products_heading' => 'Products', 'services_heading' => 'Services', 'ai_heading' => '', 'blog_heading' => 'Knowledge Center']));
+        return Cache::remember('cms.footer', 3600, fn () => CmsFooterContent::firstOrCreate([], [
+            'copyright' => '© '.date('Y').' DevNiox. All rights reserved.',
+            'short_description' => 'Digital products engineered for growth.',
+            'company_heading' => 'Company',
+            'resources_heading' => 'Resources',
+            'conversation_heading' => 'Start a conversation',
+            'conversation_description' => 'Tell us where your business needs better software.',
+            'contact_email' => config('mail.from.address'),
+            'contact_phone' => null,
+            'bottom_right_text' => 'Software products - Enterprise systems - Business automation',
+            'quick_links_heading' => 'Company',
+            'products_heading' => 'Resources',
+            'services_heading' => 'Start a conversation',
+            'ai_heading' => '',
+            'blog_heading' => 'Knowledge Center',
+        ]));
     }
 
     public function updatePage(CmsPage $page, array $d, int $user): void
@@ -86,7 +101,15 @@ class CmsService
 
     public function updateFooter(array $d, int $user): void
     {
-        CmsFooterContent::query()->first()->update($d + ['updated_by' => $user]);
+        CmsFooterContent::query()->firstOrCreate([], [
+            'copyright' => '© '.date('Y').' DevNiox. All rights reserved.',
+            'short_description' => 'Digital products engineered for growth.',
+            'company_heading' => 'Company',
+            'resources_heading' => 'Resources',
+            'conversation_heading' => 'Start a conversation',
+            'conversation_description' => 'Tell us where your business needs better software.',
+            'bottom_right_text' => 'Software products - Enterprise systems - Business automation',
+        ])->update($d + ['updated_by' => $user]);
         Cache::forget('cms.footer');
     }
 

@@ -7,6 +7,7 @@ use App\Models\Platform;
 use App\Models\PortfolioProject;
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\Setting;
 use App\Services\CmsService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -26,7 +27,8 @@ class HomeController extends Controller
             'platforms' => Platform::active()->orderBy('display_order')->orderBy('name')->get(),
         ]);
 
-        return view('pages.home', ['cmsPage' => $cms->page('home'), ...$content]);
+        $parentSettings = Setting::query()->where('group', 'company')->where('key', 'like', 'parent_%')->pluck('value', 'key')->mapWithKeys(fn ($value, $key) => ['company.'.$key => $value])->all();
+        return view('pages.home', ['cmsPage' => $cms->page('home'), 'parentSettings' => $parentSettings, ...$content]);
     }
 
     private function showcase(Builder $query): Collection

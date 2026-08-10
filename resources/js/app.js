@@ -1,39 +1,5 @@
 import 'bootstrap';
 
-const root = document.documentElement;
-const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-let theme = systemTheme;
-
-try {
-    theme = localStorage.getItem('theme') || systemTheme;
-} catch {
-    // Storage can be unavailable in privacy-restricted browsing contexts.
-}
-
-const applyTheme = (value) => {
-    root.setAttribute('data-bs-theme', value);
-    document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
-        button.setAttribute('aria-pressed', String(value === 'dark'));
-        const icon = button.querySelector('i');
-        if (icon) icon.className = value === 'dark' ? 'bi bi-moon-stars' : 'bi bi-sun';
-    });
-};
-
-applyTheme(theme);
-
-document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
-    button.addEventListener('click', () => {
-        theme = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
-        applyTheme(theme);
-
-        try {
-            localStorage.setItem('theme', theme);
-        } catch {
-            // Theme still applies for the current page when persistence is unavailable.
-        }
-    });
-});
-
 document.querySelectorAll('form[data-confirm]').forEach((form) => {
     form.addEventListener('submit', (event) => {
         if (! window.confirm(form.dataset.confirm)) event.preventDefault();

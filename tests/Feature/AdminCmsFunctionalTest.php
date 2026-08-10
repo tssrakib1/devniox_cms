@@ -31,6 +31,22 @@ class AdminCmsFunctionalTest extends TestCase
         parent::tearDown();
     }
 
+    public function test_parent_company_settings_control_homepage_ecosystem(): void
+    {
+        Storage::fake('public');
+        $payload = [
+            'parent_company_name' => 'DEVNIOX QA PARENT', 'parent_company_badge' => 'QA Parent Company',
+            'parent_company_description' => 'DEVNIOX QA DESCRIPTION', 'parent_highlight_1_title' => 'DEVNIOX QA HIGHLIGHT',
+            'parent_highlight_1_description' => 'QA foundation description', 'parent_highlight_2_title' => 'QA ECOSYSTEM',
+            'parent_highlight_2_description' => 'QA ecosystem description', 'parent_highlight_3_title' => 'QA VISION',
+            'parent_highlight_3_description' => 'QA vision description', 'parent_company_logo' => UploadedFile::fake()->createWithContent('parent-logo.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20"/></svg>'),
+        ];
+        $this->put(route('admin.platforms.parent.update'), $payload)->assertRedirect();
+        $this->get(route('admin.platforms.index'))->assertOk()->assertSee('DEVNIOX QA PARENT')->assertSee('DEVNIOX QA HIGHLIGHT');
+        $this->assertDatabaseHas('settings', ['group' => 'company', 'key' => 'parent_company_name', 'value' => 'DEVNIOX QA PARENT']);
+        $this->get(route('home'))->assertOk()->assertSee('DEVNIOX QA PARENT')->assertSee('DEVNIOX QA DESCRIPTION')->assertSee('DEVNIOX QA HIGHLIGHT')->assertSee('company/');
+    }
+
     public function test_admin_authentication_and_protected_route(): void
     {
         auth()->logout();
@@ -165,5 +181,37 @@ class AdminCmsFunctionalTest extends TestCase
 
         $this->delete(route('admin.media.destroy', $media))->assertRedirect(route('admin.media.index'));
         $this->assertNotNull(DB::table('media_assets')->where('id', $media->id)->value('deleted_at'));
+    }
+
+    public function test_footer_cms_matches_public_footer_and_invalidates_cache(): void
+    {
+        $original = (array) DB::table('cms_footer_content')->first();
+        $payload = [
+            'copyright' => 'DEVNIOX_QA_COPYRIGHT',
+            'short_description' => 'DEVNIOX_QA_FOOTER_DESCRIPTION',
+            'company_heading' => 'DEVNIOX_QA_COMPANY',
+            'resources_heading' => 'DEVNIOX_QA_RESOURCES',
+            'conversation_heading' => 'DEVNIOX_QA_CONVERSATION',
+            'conversation_description' => 'DEVNIOX_QA_CONVERSATION_DESCRIPTION',
+            'contact_email' => 'qa-footer@devniox.test',
+            'contact_phone' => '+8801700000000',
+            'bottom_right_text' => 'DEVNIOX_QA_BOTTOM_TEXT',
+        ];
+
+        $this->get(route('admin.cms.footer.edit'))->assertOk();
+        $this->put(route('admin.cms.footer.update'), $payload)->assertRedirect();
+        $this->assertDatabaseHas('cms_footer_content', $payload);
+        $this->get(route('admin.cms.footer.edit'))->assertOk()->assertSee('DEVNIOX_QA_COMPANY')->assertSee('+8801700000000');
+        $this->get(route('home'))->assertOk()
+            ->assertSee('DEVNIOX_QA_COMPANY')
+            ->assertSee('DEVNIOX_QA_RESOURCES')
+            ->assertSee('DEVNIOX_QA_CONVERSATION')
+            ->assertSee('DEVNIOX_QA_FOOTER_DESCRIPTION')
+            ->assertSee('qa-footer@devniox.test')
+            ->assertSee('+8801700000000')
+            ->assertSee('DEVNIOX_QA_COPYRIGHT')
+            ->assertSee('DEVNIOX_QA_BOTTOM_TEXT');
+
+        DB::table('cms_footer_content')->where('id', $original['id'])->update(collect($original)->except(['id'])->all());
     }
 }

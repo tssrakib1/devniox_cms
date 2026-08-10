@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PlatformRequest;
 use App\Models\Platform;
+use App\Models\Setting;
+use App\Enums\SettingGroup;
 use App\Services\ActivityLogService;
 use App\Services\ManagedImageService;
+use App\Services\SettingsService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +17,7 @@ use Illuminate\View\View;
 
 class PlatformController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, SettingsService $settings): View
     {
         $filters = $request->validate(['search' => ['nullable', 'string', 'max:180'], 'status' => ['nullable', 'in:active,inactive']]);
         $platforms = Platform::query()
@@ -25,7 +28,28 @@ class PlatformController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.platforms.index', compact('platforms'));
+        $parent = collect($settings->all())->filter(fn ($value, $key) => str_starts_with($key, 'company.parent_'));
+        return view('admin.platforms.index', compact('platforms', 'parent'));
+    }
+
+    public function updateParent(Request $request, SettingsService $settings, ManagedImageService $images): RedirectResponse
+    {
+        $data = $request->validate([
+            'parent_company_name' => ['required', 'string', 'max:255'], 'parent_company_badge' => ['nullable', 'string', 'max:100'],
+            'parent_company_description' => ['nullable', 'string'], 'parent_highlight_1_title' => ['nullable', 'string', 'max:255'],
+            'parent_highlight_1_description' => ['nullable', 'string'], 'parent_highlight_2_title' => ['nullable', 'string', 'max:255'],
+            'parent_highlight_2_description' => ['nullable', 'string'], 'parent_highlight_3_title' => ['nullable', 'string', 'max:255'],
+            'parent_highlight_3_description' => ['nullable', 'string'], 'parent_company_logo' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp,svg', 'max:4096'],
+        ]);
+        $file = $request->file('parent_company_logo'); unset($data['parent_company_logo']);
+        if ($file) { $old = $settings->get('company.parent_company_logo'); $data['parent_company_logo'] = $images->store($file, 'company', 1200, 1200); }
+        foreach ($data as $key => $value) {
+            Setting::where('group', SettingGroup::Company->value)->where('key', $key)->update(['value' => $value]);
+        }
+        $settings->forget();
+        if ($file && filled($old ?? null)) { $images->delete($old); }
+        ActivityLogService::log('settings', 'updated', 'Parent company settings updated.');
+        return back()->with('success', 'Parent company settings saved.');
     }
 
     public function create(): View
