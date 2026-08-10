@@ -89,3 +89,11 @@ if ('IntersectionObserver' in window && ! window.matchMedia('(prefers-reduced-mo
 document.querySelectorAll('[data-counter]').forEach((counter) => {
     counter.style.fontVariantNumeric = 'tabular-nums';
 });
+
+const backToTop = document.querySelector('[data-back-to-top]');
+if (backToTop) {
+    const updateBackToTop = () => backToTop.classList.toggle('is-visible', window.scrollY > 500);
+    updateBackToTop();
+    window.addEventListener('scroll', updateBackToTop, { passive: true });
+    backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+}
