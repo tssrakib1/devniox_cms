@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Product;
 use App\Models\MediaAsset;
+use App\Models\Product;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -21,6 +21,7 @@ class AdminCmsFunctionalTest extends TestCase
         parent::setUp();
 
         $this->admin = User::query()->where('role', 'admin')->firstOrFail();
+        $this->admin->forceFill(['password' => Hash::make((string) config('auth.system_administrator.password'))])->save();
         $this->actingAs($this->admin);
         DB::beginTransaction();
     }
@@ -39,7 +40,7 @@ class AdminCmsFunctionalTest extends TestCase
             'parent_company_description' => 'DEVNIOX QA DESCRIPTION', 'parent_highlight_1_title' => 'DEVNIOX QA HIGHLIGHT',
             'parent_highlight_1_description' => 'QA foundation description', 'parent_highlight_2_title' => 'QA ECOSYSTEM',
             'parent_highlight_2_description' => 'QA ecosystem description', 'parent_highlight_3_title' => 'QA VISION',
-            'parent_highlight_3_description' => 'QA vision description', 'parent_company_logo' => UploadedFile::fake()->createWithContent('parent-logo.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20"/></svg>'),
+            'parent_highlight_3_description' => 'QA vision description', 'parent_company_logo' => UploadedFile::fake()->createWithContent('parent-logo.png', base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=')),
         ];
         $this->put(route('admin.platforms.parent.update'), $payload)->assertRedirect();
         $this->get(route('admin.platforms.index'))->assertOk()->assertSee('DEVNIOX QA PARENT')->assertSee('DEVNIOX QA HIGHLIGHT');
@@ -54,7 +55,7 @@ class AdminCmsFunctionalTest extends TestCase
         $this->get(route('login'))->assertOk();
         $this->post(route('login'), [
             'email' => $this->admin->email,
-            'password' => env('ADMIN_PASSWORD'),
+            'password' => config('auth.system_administrator.password'),
         ])->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($this->admin);
         $this->get(route('admin.dashboard'))->assertOk();

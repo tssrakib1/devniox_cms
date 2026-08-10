@@ -40,6 +40,8 @@ class SettingsService
             $settings[$key] = $this->decrypt($settings[$key] ?? null);
         }
 
+        $settings['contact.google_maps_embed'] = $this->safeMapUrl($settings['contact.google_maps_embed'] ?? null);
+
         return $this->requestAll = $settings;
     }
 
@@ -62,7 +64,10 @@ class SettingsService
             $cached = $this->cached();
         }
 
-        return $this->requestPublic = $cached['public'];
+        $public = $cached['public'];
+        $public['contact.google_maps_embed'] = $this->safeMapUrl($public['contact.google_maps_embed'] ?? null);
+
+        return $this->requestPublic = $public;
     }
 
     public function socialLinks(): Collection
@@ -163,6 +168,20 @@ class SettingsService
             return $value;
         }
     }
+
+    private function safeMapUrl(mixed $value): ?string
+    {
+        if (! is_string($value) || blank($value)) {
+            return null;
+        }
+
+        preg_match('/<iframe[^>]+src=["\']([^"\']+)["\']/i', $value, $matches);
+        $url = $matches[1] ?? $value;
+        $parts = parse_url($url);
+        $host = strtolower($parts['host'] ?? '');
+
+        return ($parts && ($parts['scheme'] ?? '') === 'https'
+            && in_array($host, ['www.google.com', 'maps.google.com', 'google.com'], true)
+            && str_starts_with($parts['path'] ?? '', '/maps')) ? $url : null;
+    }
 }
-
-

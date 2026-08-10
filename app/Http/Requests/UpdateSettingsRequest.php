@@ -32,7 +32,17 @@ class UpdateSettingsRequest extends FormRequest
             'settings.contact.email' => ['nullable', 'email:rfc', 'max:254'],
             'settings.contact.support_email' => ['nullable', 'email:rfc', 'max:254'],
             'settings.contact.sales_email' => ['nullable', 'email:rfc', 'max:254'],
-            'settings.contact.google_maps_embed' => ['nullable', 'string', 'max:5000', 'not_regex:/<script\b/i'],
+            'settings.contact.google_maps_embed' => ['nullable', 'string', 'max:2048', function (string $attribute, mixed $value, \Closure $fail): void {
+                if (blank($value)) {
+                    return;
+                }
+                preg_match('/<iframe[^>]+src=["\']([^"\']+)["\']/i', (string) $value, $matches);
+                $parts = parse_url($matches[1] ?? $value);
+                $host = strtolower($parts['host'] ?? '');
+                if (($parts['scheme'] ?? '') !== 'https' || ! in_array($host, ['www.google.com', 'maps.google.com', 'google.com'], true) || ! str_starts_with($parts['path'] ?? '', '/maps')) {
+                    $fail('The Google Maps value must be a secure Google Maps URL or embed URL.');
+                }
+            }],
             'settings.seo.meta_title' => ['required', 'string', 'max:70'],
             'settings.seo.meta_description' => ['required', 'string', 'max:160'],
             'settings.seo.meta_keywords' => ['nullable', 'string', 'max:500'],

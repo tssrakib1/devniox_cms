@@ -22,7 +22,7 @@ class PlatformRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:160'],
             'slug' => ['required', 'string', 'max:180', Rule::unique(Platform::class, 'slug')->ignore($platform)],
-            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp,svg', 'max:4096'],
+            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
             'description' => ['required', 'string', 'max:500'],
             'website_url' => ['required', 'url:http,https', 'max:255'],
             'badge' => ['nullable', 'string', 'max:80'],
@@ -33,5 +33,3 @@ class PlatformRequest extends FormRequest
         ];
     }
 }
-
-

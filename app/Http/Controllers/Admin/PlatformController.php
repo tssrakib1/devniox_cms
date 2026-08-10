@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SettingGroup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PlatformRequest;
 use App\Models\Platform;
 use App\Models\Setting;
-use App\Enums\SettingGroup;
 use App\Services\ActivityLogService;
 use App\Services\ManagedImageService;
 use App\Services\SettingsService;
@@ -29,6 +29,7 @@ class PlatformController extends Controller
             ->withQueryString();
 
         $parent = collect($settings->all())->filter(fn ($value, $key) => str_starts_with($key, 'company.parent_'));
+
         return view('admin.platforms.index', compact('platforms', 'parent'));
     }
 
@@ -39,16 +40,23 @@ class PlatformController extends Controller
             'parent_company_description' => ['nullable', 'string'], 'parent_highlight_1_title' => ['nullable', 'string', 'max:255'],
             'parent_highlight_1_description' => ['nullable', 'string'], 'parent_highlight_2_title' => ['nullable', 'string', 'max:255'],
             'parent_highlight_2_description' => ['nullable', 'string'], 'parent_highlight_3_title' => ['nullable', 'string', 'max:255'],
-            'parent_highlight_3_description' => ['nullable', 'string'], 'parent_company_logo' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp,svg', 'max:4096'],
+            'parent_highlight_3_description' => ['nullable', 'string'], 'parent_company_logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
         ]);
-        $file = $request->file('parent_company_logo'); unset($data['parent_company_logo']);
-        if ($file) { $old = $settings->get('company.parent_company_logo'); $data['parent_company_logo'] = $images->store($file, 'company', 1200, 1200); }
+        $file = $request->file('parent_company_logo');
+        unset($data['parent_company_logo']);
+        if ($file) {
+            $old = $settings->get('company.parent_company_logo');
+            $data['parent_company_logo'] = $images->store($file, 'company', 1200, 1200);
+        }
         foreach ($data as $key => $value) {
             Setting::where('group', SettingGroup::Company->value)->where('key', $key)->update(['value' => $value]);
         }
         $settings->forget();
-        if ($file && filled($old ?? null)) { $images->delete($old); }
+        if ($file && filled($old ?? null)) {
+            $images->delete($old);
+        }
         ActivityLogService::log('settings', 'updated', 'Parent company settings updated.');
+
         return back()->with('success', 'Parent company settings saved.');
     }
 
